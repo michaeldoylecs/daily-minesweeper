@@ -13,5 +13,5 @@ describe('MinesweeperGame', () => {
                 expect([isVisible, isFlagged, isBomb]).toStrictEqual([false, false, false]);
             }
         }
-    })
+    });
 });
