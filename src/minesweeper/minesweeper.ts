@@ -13,6 +13,7 @@ class BoardTile {
         isBomb: boolean = false,
         adjacentBombCount: number = -1
     ) {
+        makeAutoObservable(this);
         this.isVisible = isVisible;
         this.isFlagged = isFlagged;
         this.isBomb = isBomb;
@@ -34,6 +35,7 @@ class MinesweeperGame {
     readonly boardColumns: number;
     readonly _seed: string = 'TESTSEED';
     private _board: BoardTile[][];
+    private isOver: boolean;
 
     constructor(boardWidth: number = 9, boardHeight: number = 9, mineCount: number = 20) {
         makeAutoObservable(this);
@@ -42,6 +44,19 @@ class MinesweeperGame {
         this.boardColumns = this._board[0].length; // Assumes board > 0 rows
         this.mineCount = mineCount;
         this._board = this.generateGameBoard();
+        this.isOver = false;
+    }
+
+    public click(x: number, y: number) {
+        if (this.isOver) return;
+        if (x < 0 || x >= this.boardColumns || y < 0 || y > this.boardRows) return;
+        const tile = this._board[x][y];
+        if (tile.isVisible) return;
+        this._board[x][y].isVisible = true;
+        if (tile.isBomb) {
+            this.isOver = true;
+        }
+        // Else, if tile is no adjacencies, propagate
     }
 
     public get board(): BoardTile[][] { 

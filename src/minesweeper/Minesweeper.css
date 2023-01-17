@@ -1,0 +1,15 @@
+.board-tile {
+    cursor: pointer;
+}
+
+.tile-hidden {
+    background-color: black;
+}
+
+.tile-visible { 
+    background-color: white;
+}
+
+.tile-bomb {
+    background-color: red;
+}
