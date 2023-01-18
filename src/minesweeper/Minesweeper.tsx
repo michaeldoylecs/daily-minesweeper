@@ -5,7 +5,10 @@ import './Minesweeper.css';
 import { SyntheticEvent } from 'react';
 
 function Minesweeper() {
-    const game = new MinesweeperGame();
+    const width = 20;
+    const height = 20;
+    const bombs = Math.floor(width * height * 0.12);
+    const game = new MinesweeperGame(width, height, bombs);
     const rowCount = game.board.length;
     const columnCount = game.board[0].length;
 
@@ -33,7 +36,13 @@ function Minesweeper() {
                                 'tile-bomb': tile.isVisible && tile.isBomb
                             })}
                         >
-                            { tile.isBomb ? 'B' : tile.adjacentBombCount }
+                            {
+                                tile.isBomb
+                                    ? 'B'
+                                    : tile.adjacentBombCount > 0
+                                        ? tile.adjacentBombCount
+                                        : ''
+                            }
                         </div>
                     ))
                 }
@@ -45,8 +54,8 @@ function Minesweeper() {
         display: 'grid',
         gridTemplateColumns: `repeat(${rowCount}, 1fr)`,
         gridTemplateRows: `repeat(${columnCount}, 1fr)`,
-        columnGap: '5px',
-        rowGap: '5px',
+        columnGap: '2px',
+        rowGap: '2px',
     }
 
     return (

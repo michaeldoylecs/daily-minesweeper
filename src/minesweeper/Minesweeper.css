@@ -1,9 +1,15 @@
 .board-tile {
     cursor: pointer;
+    width: 24px;
+    height: 24px;
 }
 
 .tile-hidden {
     background-color: black;
+}
+
+.tile-hidden:hover {
+    background-color: gray;
 }
 
 .tile-visible { 

@@ -37,7 +37,7 @@ class MinesweeperGame {
     private _board: BoardTile[][];
     private isOver: boolean;
 
-    constructor(boardWidth: number = 9, boardHeight: number = 9, mineCount: number = 20) {
+    constructor(boardWidth: number = 9, boardHeight: number = 9, mineCount: number = 12) {
         makeAutoObservable(this);
         this._board = this.createEmptyBoard(boardWidth, boardHeight);
         this.boardRows = this._board.length;
@@ -55,8 +55,12 @@ class MinesweeperGame {
         this._board[x][y].isVisible = true;
         if (tile.isBomb) {
             this.isOver = true;
+            return;
         }
-        // Else, if tile is no adjacencies, propagate
+        if (tile.adjacentBombCount === 0) {
+            this._board = this.propagateEmptyTiles(this._board, x, y);
+            console.log(this._board);
+        }
     }
 
     public get board(): BoardTile[][] { 
@@ -91,7 +95,43 @@ class MinesweeperGame {
         return board;
     }
 
-    private incrementAdjacentTiles(board: BoardTile[][], x: number, y: number) {
+    private propagateEmptyTiles(board: BoardTile[][], x: number, y: number): BoardTile[][] {
+        const visitedCoords = new Set<string>();
+        let toVisit = this.getAdjacentTiles(board, x, y);
+        console.log(`toVisit: ${toVisit}`)
+
+        while (toVisit.length > 0) {
+            const [currX, currY] = toVisit.pop()!;
+            const stringifiedCoords = JSON.stringify([currX, currY]);
+            if (visitedCoords.has(stringifiedCoords)) {
+                continue;
+            }
+            visitedCoords.add(stringifiedCoords);
+            board[currX][currY].isVisible = true;
+            if (board[currX][currY].adjacentBombCount === 0) {
+                const adjacentTiles = this.getAdjacentTiles(board, currX, currY);
+                toVisit = toVisit.concat(adjacentTiles);
+            }
+        }
+        return board;
+    }
+
+    private incrementAdjacentTiles(board: BoardTile[][], x: number, y: number): BoardTile[][] {
+        const adjacentTiles = this.getAdjacentTiles(board, x, y);
+        for (const adjTile of adjacentTiles) {
+            const [x, y] = adjTile;
+            board[x][y].adjacentBombCount += 1;
+        }
+        return board;
+    }
+
+    private getAdjacentTiles(board: BoardTile[][], x: number, y: number): [number, number][] {
+        if (board.length < 1) {
+            return [];
+        }
+        const xMax = board.length;
+        const yMax = board[0].length;
+        
         const NW = [-1, -1];
         const N  = [ 0, -1];
         const NE = [ 1, -1];
@@ -101,15 +141,17 @@ class MinesweeperGame {
         const SW = [-1,  1];
         const W  = [-1,  0];
         const adjacencies = [NW, N, NE, E, SE, S, SW, W];
+        const validAdjacencies: [number, number][] = [];
         for (const adjacency of adjacencies) {
             const [dx, dy] = adjacency;
             const adjX = x + dx;
             const adjY = y + dy;
-            if (adjX < 0 || adjX >= this.boardColumns || adjY < 0 || adjY >= this.boardRows) {
+            if (adjX < 0 || adjX >= xMax || adjY < 0 || adjY >= yMax) {
                 continue;
             }
-            board[adjX][adjY].adjacentBombCount += 1;
+            validAdjacencies.push([adjX, adjY]);
         }
+        return validAdjacencies;
     }
 
     private chooseSeededMinePositions(rng: Rand): [number, number][] {
