@@ -1,7 +1,21 @@
+.minesweeper {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+}
+
 .board-tile {
     cursor: pointer;
     width: 24px;
     height: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
 }
 
 .tile-hidden {

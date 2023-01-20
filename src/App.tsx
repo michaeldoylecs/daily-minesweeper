@@ -3,8 +3,16 @@ import './App.css'
 
 function App() {
   return (
-    <div className="App">
-      <Minesweeper />
+    <div className="app">
+      <header>
+
+      </header>
+      <main>
+        <Minesweeper />
+      </main>
+      <footer>
+
+      </footer>
     </div>
   )
 }

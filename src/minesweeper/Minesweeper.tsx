@@ -11,11 +11,18 @@ function Minesweeper() {
     const game = new MinesweeperGame(width, height, bombs);
     const rowCount = game.board.length;
     const columnCount = game.board[0].length;
+    const tileSize = 24;
 
     const handleTileClick = (event: SyntheticEvent) => {
         const x = parseInt(event.currentTarget.getAttribute('data-x') ?? '-1');
         const y = parseInt(event.currentTarget.getAttribute('data-y') ?? '-1');
         game.click(x, y);
+    }
+
+    const boardTileStyle = {
+        cursor: 'pointer',
+        width: `${tileSize}px`,
+        height: `${tileSize}px`,
     }
 
     const GameBoardComponent = observer((observable: { gameBoard: BoardTile[][] }) => 
@@ -29,6 +36,7 @@ function Minesweeper() {
                             data-x={x}
                             data-y={y}
                             onClick={handleTileClick}
+                            style={boardTileStyle}
                             className={classNames({
                                 'board-tile': true,
                                 'tile-hidden': !tile.isVisible,
@@ -52,16 +60,24 @@ function Minesweeper() {
         }
     );
 
+    const GameActionsComponent = <>
+        <div>
+
+        </div>
+    </>;
+
     const gameBoardStyle = {
         display: 'grid',
         gridTemplateColumns: `repeat(${rowCount}, 1fr)`,
         gridTemplateRows: `repeat(${columnCount}, 1fr)`,
         columnGap: '2px',
         rowGap: '2px',
+        justifyItems: 'center',
+        width: `${(tileSize + 2) * width - 2}px`,
     }
 
     return (
-        <div className="Minesweeper">
+        <div className="minesweeper">
             <div className='game-board' style={gameBoardStyle}>
                 <GameBoardComponent gameBoard={game.board} />
             </div>
