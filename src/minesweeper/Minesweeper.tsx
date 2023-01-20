@@ -37,11 +37,13 @@ function Minesweeper() {
                             })}
                         >
                             {
-                                tile.isBomb
-                                    ? 'B'
-                                    : tile.adjacentBombCount > 0
-                                        ? tile.adjacentBombCount
-                                        : ''
+                                !tile.isVisible
+                                    ? ''
+                                    : tile.isBomb
+                                        ? 'B'
+                                        : tile.adjacentBombCount > 0
+                                            ? tile.adjacentBombCount
+                                            : ''
                             }
                         </div>
                     ))
