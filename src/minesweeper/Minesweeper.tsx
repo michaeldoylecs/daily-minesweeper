@@ -13,10 +13,28 @@ function Minesweeper() {
     const columnCount = game.board[0].length;
     const tileSize = 24;
 
+    const parseTileCoordinates = (tile: EventTarget & Element): [number, number] => {
+        const x = parseInt(tile.getAttribute('data-x') ?? '-1');
+        const y = parseInt(tile.getAttribute('data-y') ?? '-1');
+        return [x, y];
+    }
+
     const handleTileClick = (event: SyntheticEvent) => {
-        const x = parseInt(event.currentTarget.getAttribute('data-x') ?? '-1');
-        const y = parseInt(event.currentTarget.getAttribute('data-y') ?? '-1');
+        event.preventDefault();
+        const [x, y] = parseTileCoordinates(event.currentTarget);
         game.click(x, y);
+    }
+
+    const handleFlagPlace = (event: SyntheticEvent) => {
+        event.preventDefault();
+        const [x, y] = parseTileCoordinates(event.currentTarget);
+        game.flag(x, y);
+    }
+
+    const disableContextMenu = (event: SyntheticEvent) => {
+        if (event.type = 'contextmenu') {
+            event.preventDefault();
+        }
     }
 
     const boardTileStyle = {
@@ -36,6 +54,7 @@ function Minesweeper() {
                             data-x={x}
                             data-y={y}
                             onClick={handleTileClick}
+                            onContextMenu={handleFlagPlace}
                             style={boardTileStyle}
                             className={classNames({
                                 'board-tile': true,
@@ -45,13 +64,15 @@ function Minesweeper() {
                             })}
                         >
                             {
-                                !tile.isVisible
-                                    ? ''
-                                    : tile.isBomb
+                                tile.isVisible
+                                    ? tile.isBomb
                                         ? 'B'
                                         : tile.adjacentBombCount > 0
                                             ? tile.adjacentBombCount
                                             : ''
+                                    : tile.isFlagged
+                                        ? 'F'
+                                        : ''
                             }
                         </div>
                     ))
@@ -78,7 +99,7 @@ function Minesweeper() {
 
     return (
         <div className="minesweeper">
-            <div className='game-board' style={gameBoardStyle}>
+            <div className='game-board' style={gameBoardStyle} onContextMenu={disableContextMenu}>
                 <GameBoardComponent gameBoard={game.board} />
             </div>
         </div>

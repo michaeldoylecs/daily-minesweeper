@@ -19,11 +19,11 @@
 }
 
 .tile-hidden {
-    background-color: black;
+    background-color: gray;
 }
 
 .tile-hidden:hover {
-    background-color: gray;
+    background-color: lightgray;
 }
 
 .tile-visible { 

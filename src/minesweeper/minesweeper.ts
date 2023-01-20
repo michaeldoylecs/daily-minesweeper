@@ -63,6 +63,14 @@ class MinesweeperGame {
         }
     }
 
+    public flag(x: number, y: number) {
+        if (this.isOver) return;
+        if (x < 0 || x >= this.boardColumns || y < 0 || y > this.boardRows) return;
+        const tile = this._board[x][y];
+        if (tile.isVisible) return;
+        this._board[x][y].isFlagged = !this._board[x][y].isFlagged;
+    }
+
     public get board(): BoardTile[][] { 
         return this._board;
     }
