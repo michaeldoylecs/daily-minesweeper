@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { MinesweeperGame } from './minesweeper';
+import { MinesweeperGame } from './minesweeper-game';
 
 describe('MinesweeperGame', () => {
     test('9 by 11 board is initialized properly', () => {

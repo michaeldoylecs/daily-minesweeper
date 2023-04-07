@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react';
 import classNames from 'classnames';
-import { MinesweeperGame, BoardTile } from './minesweeper';
+import { MinesweeperGame, BoardTile } from './minesweeper-game';
 import './Minesweeper.css';
 import { SyntheticEvent } from 'react';
 
