@@ -32,7 +32,7 @@ function Minesweeper() {
     }
 
     const disableContextMenu = (event: SyntheticEvent) => {
-        if (event.type = 'contextmenu') {
+        if (event.type == 'contextmenu') {
             event.preventDefault();
         }
     }
