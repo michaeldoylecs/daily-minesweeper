@@ -1,0 +1,35 @@
+name: Build and Deploy to CapRover
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 19.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19.x
+
+      - name: Install NPM dependencies
+        run: npm install
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Bundle project tar
+        run: tar -cvf ./deploy.tar --exclude='*.map' ./captain-definition ./dist/*
+
+      - name: CapRover Deployment
+        uses: jacobsteves/caprover-deployment@v1.0.0
+        with:
+          server: ${{ secrets.CAPROVER_SERVER_URL }}
+          password: ${{ secrets.CAPROVER_PASSWORD }}
+          appname: ${{ secrets.CAPROVER_APP_NAME }}
+          tarball: ./deploy.tar
