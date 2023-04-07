@@ -95,6 +95,9 @@ function Minesweeper() {
         rowGap: '2px',
         justifyItems: 'center',
         width: `${(tileSize + 2) * width - 2}px`,
+        backgroundColor: 'whitesmoke',
+        border: '2px solid black',
+        padding: '2px',
     }
 
     return (
