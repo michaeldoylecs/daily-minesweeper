@@ -5,13 +5,18 @@ function App() {
   return (
     <div className="app">
       <header>
-
+        <h2>
+          Daily Minesweeper
+        </h2>
       </header>
       <main>
         <Minesweeper />
       </main>
       <footer>
-
+        <a href="https://github.com/michaeldoylecs" target="_blank">
+          <img src="github-mark.svg" width="20px" height="20px"></img>
+          Michael Doyle
+        </a>
       </footer>
     </div>
   )

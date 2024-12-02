@@ -14,8 +14,15 @@
 }
 
 header {
-  height: 50px;
-  background-color: blue;
+  height: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+header h2 {
+  color: black;
+  font-size: 1.75rem;
 }
 
 main {
@@ -29,5 +36,24 @@ main {
 
 footer {
   height: 50px;
-  background-color: yellow;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+footer a {
+  color: black;
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  gap: 3px;
+}
+
+footer a:hover {
+  color: #2e2e2e
+}
+
+footer a:hover img {
+  filter: brightness(150%);
 }
