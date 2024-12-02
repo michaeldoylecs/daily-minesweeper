@@ -8,13 +8,12 @@
 
 .board-tile {
     cursor: pointer;
-    width: 24px;
-    height: 24px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-content: center;
     font-weight: bold;
+    font-size: 1em;
 }
 
 .tile-hidden {
@@ -24,7 +23,7 @@
 .tile-hidden:hover {
     background-color: lightgray;
     transition-timing-function: ease-out;
-    transition-duration: 200ms;
+    transition-duration: 150ms;
 }
 
 .tile-visible { 

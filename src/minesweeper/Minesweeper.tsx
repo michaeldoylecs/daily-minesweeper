@@ -42,7 +42,6 @@ function Minesweeper() {
     });
     const rowCount = game.board.length;
     const columnCount = game.board[0].length;
-    const tileSize = 24;
 
     const parseTileCoordinates = (tile: EventTarget & Element): [number, number] => {
         const x = parseInt(tile.getAttribute('data-x') ?? '-1');
@@ -83,8 +82,7 @@ function Minesweeper() {
 
     const boardTileStyle = {
         cursor: 'pointer',
-        width: `${tileSize}px`,
-        height: `${tileSize}px`,
+        justifySelf: 'stretch',
     }
 
     const GameBoardComponent = observer((observable: { game: MinesweeperGame }) => 
@@ -138,7 +136,12 @@ function Minesweeper() {
         columnGap: '2px',
         rowGap: '2px',
         justifyItems: 'center',
-        width: `${(tileSize + 2) * width - 2}px`,
+        minWidth: `500px`,
+        minHeight: `500px`,
+        width: `70vh`,
+        height: `70vh`,
+        maxWidth: `70vw`,
+        maxHeight: `70vw`,
         backgroundColor: 'whitesmoke',
         border: '2px solid black',
         padding: '2px',
