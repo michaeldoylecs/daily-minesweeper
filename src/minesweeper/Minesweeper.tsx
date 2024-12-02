@@ -2,8 +2,8 @@ import { observer } from 'mobx-react';
 import classNames from 'classnames';
 import { MinesweeperGame, MinesweeperGameState, BoardTile } from './minesweeper-game';
 import './Minesweeper.css';
-import { SyntheticEvent } from 'react';
-import { autorun } from 'mobx';
+import { SyntheticEvent, useState } from 'react';
+import { action, autorun } from 'mobx';
 
 function SerializeGameState(gamestate: MinesweeperGameState): string {
     return JSON.stringify(gamestate);
@@ -13,14 +13,19 @@ function DeserializeGameState(gamestate: string): MinesweeperGameState {
     return JSON.parse(gamestate);
 }
 
+function getTodaysSeed(): string {
+    const MAGIC_NUMBER = 329246;
+    const now = new Date();
+    const seed = (now.getUTCDay() * now.getUTCMonth() * now.getUTCFullYear() * MAGIC_NUMBER).toString();
+    return seed
+}
+
 function Minesweeper() {
     const width = 20;
     const height = 20;
     const bombs = Math.floor(width * height * 0.12);
-    const game = (() => {
-        const MAGIC_NUMBER = 329246;
-        const now = new Date();
-        const todaySeed = (now.getUTCDay() * now.getUTCMonth() * now.getUTCFullYear() * MAGIC_NUMBER).toString();
+    const [game] = useState(() => {
+        const todaySeed = getTodaysSeed();
 
         const old = localStorage.getItem("gamestate");
         if (old == null) {
@@ -34,7 +39,7 @@ function Minesweeper() {
         }
 
         return new MinesweeperGame(width, height, bombs, todaySeed);
-    })();
+    });
     const rowCount = game.board.length;
     const columnCount = game.board[0].length;
     const tileSize = 24;
@@ -63,7 +68,13 @@ function Minesweeper() {
         }
     }
 
-    // Same game state on change
+    const handleReset = (event: SyntheticEvent) => {
+        event.preventDefault();
+        game.reset();
+        console.log("RESET");
+    }
+
+    // Save game state on change
     autorun(() => {
         const gamestate = game.Export();
         localStorage.setItem("gamestate", SerializeGameState(gamestate));
@@ -76,9 +87,9 @@ function Minesweeper() {
         height: `${tileSize}px`,
     }
 
-    const GameBoardComponent = observer((observable: { gameBoard: BoardTile[][] }) => 
+    const GameBoardComponent = observer((observable: { game: MinesweeperGame }) => 
         {
-            const { gameBoard } = observable;
+            const gameBoard = observable.game.board;
             return <>
                 {
                     gameBoard.map((row, x) => row.map((tile, y) =>
@@ -136,8 +147,11 @@ function Minesweeper() {
     return (
         <div className="minesweeper">
             <div className='game-board' style={gameBoardStyle} onContextMenu={disableContextMenu}>
-                <GameBoardComponent gameBoard={game.board} />
+                <GameBoardComponent game={game} />
             </div>
+            <button onClick={action(handleReset)}>
+                Reset
+            </button>
         </div>
     );
 }

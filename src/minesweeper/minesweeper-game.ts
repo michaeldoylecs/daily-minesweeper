@@ -46,19 +46,31 @@ export class MinesweeperGame {
     private _board: BoardTile[][];
     private isOver: boolean;
 
-    constructor(boardWidth: number = 9, boardHeight: number = 9, mineCount: number = 12, seed: string = 'TESTSEED') {
+    constructor(
+        boardWidth: number = 9,
+        boardHeight: number = 9,
+        mineCount: number = 12,
+        seed: string = 'TESTSEED',
+        isOver: boolean = false
+    ) {
         this._board = this.createEmptyBoard(boardWidth, boardHeight);
         this.boardRows = this._board.length;
         this.boardColumns = this._board[0].length; // Assumes board > 0 rows
         this.mineCount = mineCount;
         this._seed = seed;
         this._board = this.generateGameBoard();
-        this.isOver = false;
+        this.isOver = isOver;
         makeAutoObservable(this);
     }
 
     public static Load(gamestate: MinesweeperGameState): MinesweeperGame {
-        let game = new MinesweeperGame(gamestate.BoardColumns, gamestate.BoardRows, gamestate.MineCount, gamestate.Seed);
+        let game = new MinesweeperGame(
+            gamestate.BoardColumns,
+            gamestate.BoardRows,
+            gamestate.MineCount,
+            gamestate.Seed,
+            gamestate.isOver
+        );
         for (let r = 0; r < game.boardRows; ++r) {
             for (let c = 0; c < game.boardColumns; ++c) {
                 game._board[r][c] = gamestate.BoardData[r][c];
@@ -76,6 +88,11 @@ export class MinesweeperGame {
             Seed: this._seed,
             isOver: this.isOver,
         };
+    }
+
+    public reset() {
+        this._board = this.generateGameBoard();
+        this.isOver = false;
     }
 
     public click(x: number, y: number) {
