@@ -15,7 +15,7 @@ function App() {
       <footer>
         <a href="https://github.com/michaeldoylecs" target="_blank">
           <img src="github-mark.svg" width="20px" height="20px"></img>
-          Michael Doyle
+          <span>Michael Doyle</span>
         </a>
       </footer>
     </div>
