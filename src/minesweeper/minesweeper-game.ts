@@ -1,7 +1,7 @@
 import Rand from 'rand-seed'; 
 import { makeAutoObservable } from 'mobx';
 
-class BoardTile {
+export class BoardTile {
     readonly isBomb: boolean;
     public adjacentBombCount: number;
     public isVisible: boolean;
@@ -29,7 +29,16 @@ class BoardTile {
     } 
 }
 
-class MinesweeperGame {
+export interface MinesweeperGameState {
+    BoardRows: number;
+    BoardColumns: number;
+    BoardData: BoardTile[][];
+    MineCount: number;
+    Seed: string;
+    isOver: boolean;
+}
+
+export class MinesweeperGame {
     readonly mineCount: number;
     readonly boardRows: number;
     readonly boardColumns: number;
@@ -37,14 +46,36 @@ class MinesweeperGame {
     private _board: BoardTile[][];
     private isOver: boolean;
 
-    constructor(boardWidth: number = 9, boardHeight: number = 9, mineCount: number = 12) {
-        makeAutoObservable(this);
+    constructor(boardWidth: number = 9, boardHeight: number = 9, mineCount: number = 12, seed: string = 'TESTSEED') {
         this._board = this.createEmptyBoard(boardWidth, boardHeight);
         this.boardRows = this._board.length;
         this.boardColumns = this._board[0].length; // Assumes board > 0 rows
         this.mineCount = mineCount;
+        this._seed = seed;
         this._board = this.generateGameBoard();
         this.isOver = false;
+        makeAutoObservable(this);
+    }
+
+    public static Load(gamestate: MinesweeperGameState): MinesweeperGame {
+        let game = new MinesweeperGame(gamestate.BoardColumns, gamestate.BoardRows, gamestate.MineCount, gamestate.Seed);
+        for (let r = 0; r < game.boardRows; ++r) {
+            for (let c = 0; c < game.boardColumns; ++c) {
+                game._board[r][c] = gamestate.BoardData[r][c];
+            }
+        }
+        return game;
+    }
+
+    public Export(): MinesweeperGameState {
+        return {
+            BoardRows: this.boardRows,
+            BoardColumns: this.boardColumns,
+            BoardData: this._board,
+            MineCount: this.mineCount,
+            Seed: this._seed,
+            isOver: this.isOver,
+        };
     }
 
     public click(x: number, y: number) {
@@ -196,8 +227,3 @@ class MinesweeperGame {
         return Math.floor(rng.next() * (max - min + 1)) + min;
     }
 }
-
-export {
-    MinesweeperGame,
-    BoardTile,
-};

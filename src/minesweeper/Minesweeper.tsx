@@ -1,14 +1,40 @@
 import { observer } from 'mobx-react';
 import classNames from 'classnames';
-import { MinesweeperGame, BoardTile } from './minesweeper-game';
+import { MinesweeperGame, MinesweeperGameState, BoardTile } from './minesweeper-game';
 import './Minesweeper.css';
 import { SyntheticEvent } from 'react';
+import { autorun } from 'mobx';
+
+function SerializeGameState(gamestate: MinesweeperGameState): string {
+    return JSON.stringify(gamestate);
+}
+
+function DeserializeGameState(gamestate: string): MinesweeperGameState {
+    return JSON.parse(gamestate);
+}
 
 function Minesweeper() {
     const width = 20;
     const height = 20;
     const bombs = Math.floor(width * height * 0.12);
-    const game = new MinesweeperGame(width, height, bombs);
+    const game = (() => {
+        const MAGIC_NUMBER = 329246;
+        const now = new Date();
+        const todaySeed = (now.getUTCDay() * now.getUTCMonth() * now.getUTCFullYear() * MAGIC_NUMBER).toString();
+
+        const old = localStorage.getItem("gamestate");
+        if (old == null) {
+            return new MinesweeperGame(width, height, bombs, todaySeed);
+        }
+
+        const gamestate = DeserializeGameState(old);
+        if (gamestate.Seed == todaySeed) {
+            console.log("Loaded gamestate");
+            return MinesweeperGame.Load(gamestate);
+        }
+
+        return new MinesweeperGame(width, height, bombs, todaySeed);
+    })();
     const rowCount = game.board.length;
     const columnCount = game.board[0].length;
     const tileSize = 24;
@@ -36,6 +62,13 @@ function Minesweeper() {
             event.preventDefault();
         }
     }
+
+    // Same game state on change
+    autorun(() => {
+        const gamestate = game.Export();
+        localStorage.setItem("gamestate", SerializeGameState(gamestate));
+        console.log("Saved gamestate");
+    });
 
     const boardTileStyle = {
         cursor: 'pointer',
