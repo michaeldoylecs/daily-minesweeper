@@ -42,7 +42,6 @@ function Minesweeper() {
     });
     const rowCount = game.board.length;
     const columnCount = game.board[0].length;
-    const [currentDate, setCurrentDate] = useState(() => new Date())
 
     const parseTileCoordinates = (tile: EventTarget & Element): [number, number] => {
         const x = parseInt(tile.getAttribute('data-x') ?? '-1');
@@ -83,15 +82,6 @@ function Minesweeper() {
             reaction.dispose();
         });
     }, [])
-    
-    useEffect(() => {
-        const handle = setInterval(() => {
-            setCurrentDate(new Date());
-        }, 1000);
-        return () => {
-            clearInterval(handle);
-        }
-    })
 
     const boardTileStyle = {
         cursor: 'pointer',
@@ -155,7 +145,31 @@ function Minesweeper() {
         padding: '2px',
     }
 
-    const date = currentDate.toString();
+    return (
+        <div className="minesweeper">
+            <ResetClock />
+            <div className='game-board' style={gameBoardStyle} onContextMenu={disableContextMenu}>
+                <GameBoardComponent game={game} />
+            </div>
+            <button onClick={action(handleReset)}>
+                Reset
+            </button>
+        </div>
+    );
+}
+
+function ResetClock() {
+    const [currentDate, setCurrentDate] = useState(() => new Date())
+
+    useEffect(() => {
+        const handle = setInterval(() => {
+            setCurrentDate(new Date());
+        }, 1000);
+        return () => {
+            clearInterval(handle);
+        }
+    })
+
     const resetDateTime = new Date(Date.UTC(
         currentDate.getUTCFullYear(),
         currentDate.getUTCMonth(),
@@ -167,22 +181,9 @@ function Minesweeper() {
     const hours = Math.floor(sec / 3600).toString().padStart(2, '0');
 
     return (
-        <div className="minesweeper">
-            <span>
-                Current date: {date}
-            </span>
-            <span>
-                Reset date: {resetDateTime.toString()}
-            </span>
-            <span>
-                Time until reset: {hours}:{minutes}:{seconds}
-            </span>
-            <div className='game-board' style={gameBoardStyle} onContextMenu={disableContextMenu}>
-                <GameBoardComponent game={game} />
-            </div>
-            <button onClick={action(handleReset)}>
-                Reset
-            </button>
+        <div className="reset-clock">
+            <span>Next: </span>
+            <span className="clock-numbers">{hours}:{minutes}:{seconds}</span>
         </div>
     );
 }

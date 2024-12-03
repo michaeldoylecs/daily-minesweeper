@@ -3,6 +3,7 @@
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
     align-content: center;
 }
 
@@ -38,4 +39,13 @@
 
 .tile-flag {
     color: greenyellow;
+}
+
+.reset-clock {
+    font-size: 2rem;
+    height: 50px;
+}
+
+.clock-numbers {
+    font-family: monospace;
 }
