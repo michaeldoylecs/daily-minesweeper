@@ -107,7 +107,6 @@ export class MinesweeperGame {
         }
         if (tile.adjacentBombCount === 0) {
             this._board = this.propagateEmptyTiles(this._board, x, y);
-            console.log(this._board);
         }
     }
 
@@ -154,7 +153,6 @@ export class MinesweeperGame {
     private propagateEmptyTiles(board: BoardTile[][], x: number, y: number): BoardTile[][] {
         const visitedCoords = new Set<string>();
         let toVisit = this.getAdjacentTiles(board, x, y);
-        console.log(`toVisit: ${toVisit}`)
 
         while (toVisit.length > 0) {
             const [currX, currY] = toVisit.pop()!;
