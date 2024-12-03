@@ -67,12 +67,6 @@ function Minesweeper() {
         }
     }
 
-    const handleReset = (event: SyntheticEvent) => {
-        event.preventDefault();
-        game.reset();
-        console.log("RESET");
-    }
-
     // Save game state on change
     useEffect(() => {
         const disposer = autorun(() => {
