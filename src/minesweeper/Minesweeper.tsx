@@ -151,9 +151,6 @@ function Minesweeper() {
             <div className='game-board' style={gameBoardStyle} onContextMenu={disableContextMenu}>
                 <GameBoardComponent game={game} />
             </div>
-            <button onClick={action(handleReset)}>
-                Reset
-            </button>
         </div>
     );
 }
