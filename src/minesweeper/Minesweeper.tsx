@@ -115,7 +115,8 @@ function Minesweeper() {
                                 'board-tile': true,
                                 'tile-hidden': !tile.isVisible,
                                 'tile-visible': tile.isVisible && !tile.isBomb,
-                                'tile-bomb': tile.isVisible && tile.isBomb
+                                'tile-bomb': tile.isVisible && tile.isBomb,
+                                'tile-flag': tile.isFlagged,
                             })}
                         >
                             {

@@ -35,3 +35,7 @@
 .tile-bomb {
     background-color: red;
 }
+
+.tile-flag {
+    color: greenyellow;
+}
