@@ -83,7 +83,7 @@ export class MinesweeperGame {
         return {
             BoardRows: this.boardRows,
             BoardColumns: this.boardColumns,
-            BoardData: this._board,
+            BoardData: this._board.slice(),
             MineCount: this.mineCount,
             Seed: this._seed,
             isOver: this.isOver,

@@ -75,12 +75,12 @@ function Minesweeper() {
 
     // Save game state on change
     useEffect(() => {
-        autorun((reaction) => {
+        const disposer = autorun(() => {
             const gamestate = game.Export();
             localStorage.setItem("gamestate", SerializeGameState(gamestate));
             console.log("Saved gamestate");
-            reaction.dispose();
         });
+        return () => disposer();
     }, [])
 
     const boardTileStyle = {
