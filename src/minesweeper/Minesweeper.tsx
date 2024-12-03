@@ -2,7 +2,7 @@ import { observer } from 'mobx-react';
 import classNames from 'classnames';
 import { MinesweeperGame, MinesweeperGameState, BoardTile } from './minesweeper-game';
 import './Minesweeper.css';
-import { SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
 import { action, autorun } from 'mobx';
 
 function SerializeGameState(gamestate: MinesweeperGameState): string {
@@ -42,6 +42,7 @@ function Minesweeper() {
     });
     const rowCount = game.board.length;
     const columnCount = game.board[0].length;
+    const [currentDate, setCurrentDate] = useState(() => new Date())
 
     const parseTileCoordinates = (tile: EventTarget & Element): [number, number] => {
         const x = parseInt(tile.getAttribute('data-x') ?? '-1');
@@ -74,11 +75,23 @@ function Minesweeper() {
     }
 
     // Save game state on change
-    autorun(() => {
-        const gamestate = game.Export();
-        localStorage.setItem("gamestate", SerializeGameState(gamestate));
-        console.log("Saved gamestate");
-    });
+    useEffect(() => {
+        autorun((reaction) => {
+            const gamestate = game.Export();
+            localStorage.setItem("gamestate", SerializeGameState(gamestate));
+            console.log("Saved gamestate");
+            reaction.dispose();
+        });
+    }, [])
+    
+    useEffect(() => {
+        const handle = setInterval(() => {
+            setCurrentDate(new Date());
+        }, 1000);
+        return () => {
+            clearInterval(handle);
+        }
+    })
 
     const boardTileStyle = {
         cursor: 'pointer',
@@ -123,12 +136,6 @@ function Minesweeper() {
         }
     );
 
-    const GameActionsComponent = <>
-        <div>
-
-        </div>
-    </>;
-
     const gameBoardStyle = {
         display: 'grid',
         gridTemplateColumns: `repeat(${rowCount}, 1fr)`,
@@ -147,8 +154,28 @@ function Minesweeper() {
         padding: '2px',
     }
 
+    const date = currentDate.toString();
+    const resetDateTime = new Date(Date.UTC(
+        currentDate.getUTCFullYear(),
+        currentDate.getUTCMonth(),
+        currentDate.getUTCDate() + 1,
+    ));
+    const sec = (resetDateTime.getTime() - currentDate.getTime()) / 1000;
+    const seconds = Math.floor(sec % 60).toString().padStart(2, '0');
+    const minutes = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+    const hours = Math.floor(sec / 3600).toString().padStart(2, '0');
+
     return (
         <div className="minesweeper">
+            <span>
+                Current date: {date}
+            </span>
+            <span>
+                Reset date: {resetDateTime.toString()}
+            </span>
+            <span>
+                Time until reset: {hours}:{minutes}:{seconds}
+            </span>
             <div className='game-board' style={gameBoardStyle} onContextMenu={disableContextMenu}>
                 <GameBoardComponent game={game} />
             </div>

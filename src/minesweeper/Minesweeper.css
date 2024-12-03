@@ -6,6 +6,10 @@
     align-content: center;
 }
 
+.game-board {
+    user-select: none;
+}
+
 .board-tile {
     cursor: pointer;
     display: flex;
@@ -22,8 +26,6 @@
 
 .tile-hidden:hover {
     background-color: lightgray;
-    transition-timing-function: ease-out;
-    transition-duration: 150ms;
 }
 
 .tile-visible { 
