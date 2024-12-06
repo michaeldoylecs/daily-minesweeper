@@ -96,15 +96,34 @@ export class MinesweeperGame {
     }
 
     public click(x: number, y: number) {
+        // Prevent click if game is already over
         if (this.isOver) return;
+
+        // Prevent click outside of game bounds
         if (x < 0 || x >= this.boardColumns || y < 0 || y > this.boardRows) return;
+
         const tile = this._board[x][y];
-        if (tile.isVisible) return;
-        this._board[x][y].isVisible = true;
+        
+        if (tile.isVisible) {
+            // If a revealed, number tile was clicked...
+            if (!tile.isBomb && !tile.isFlagged && tile.adjacentBombCount > 0 && this.getAdjacentFlagCount(this._board, x, y) == tile.adjacentBombCount) {
+                this.revealHiddenNonflaggedNeighbors(this._board, x, y);
+            }
+
+            // Ignore revealed tiles
+            return;
+        } else {
+            // Reveal the tile if not revealed yet
+            this._board[x][y].isVisible = true;
+        }
+
+        // If a bomb was clicked, end the game
         if (tile.isBomb) {
             this.isOver = true;
             return;
         }
+
+        // If there are no adjacnet bombs, propagate out the revealed tiles.
         if (tile.adjacentBombCount === 0) {
             this._board = this.propagateEmptyTiles(this._board, x, y);
         }
@@ -125,6 +144,37 @@ export class MinesweeperGame {
     private set board(newBoard) {
         this._board = newBoard;
         return;
+    }
+
+    private clickWithoutEnding(board: BoardTile[][],x: number, y: number): number {
+        // Prevent click if game is already over
+        if (this.isOver) return 0;
+
+        // Prevent click outside of game bounds
+        if (x < 0 || x >= this.boardColumns || y < 0 || y > this.boardRows) return 0;
+
+        const tile = this._board[x][y];
+        
+        if (tile.isVisible) {
+            // Ignore revealed tiles
+            return 0;
+        } else {
+            // Reveal the tile if not revealed yet
+            this._board[x][y].isVisible = true;
+        }
+
+        // If a bomb was clicked, end the game
+        if (tile.isBomb) {
+            this.isOver = true;
+            return 1;
+        }
+
+        // If there are no adjacent bombs, propagate out the revealed tiles.
+        if (tile.adjacentBombCount === 0) {
+            this._board = this.propagateEmptyTiles(this._board, x, y);
+        }
+
+        return 0;
     }
 
     private createEmptyBoard(width: number, height: number): BoardTile[][] {
@@ -240,5 +290,31 @@ export class MinesweeperGame {
         const min = Math.ceil(minimum);
         const max = Math.floor(maximum);
         return Math.floor(rng.next() * (max - min + 1)) + min;
+    }
+
+    private getAdjacentFlagCount(board: BoardTile[][], x: number, y: number): number {
+        let flags = 0;
+
+        for (let [x1, y1] of this.getAdjacentTiles(board, x, y)) {
+            const tile = board[x1][y1];
+            if (tile.isFlagged) {
+                flags += 1;
+            }
+        }
+
+        return flags;
+    }
+
+    private revealHiddenNonflaggedNeighbors(board: BoardTile[][], x: number, y: number) {
+        let bombCount = 0;
+        for (let [x1, y1] of this.getAdjacentTiles(board, x, y)) {
+            if (board[x1][y1].isVisible || board[x1][y1].isFlagged) {
+                continue;
+            }
+            bombCount += this.clickWithoutEnding(board, x1, y1);
+        }
+        if (bombCount > 0) {
+            this.isOver = true;
+        }
     }
 }
