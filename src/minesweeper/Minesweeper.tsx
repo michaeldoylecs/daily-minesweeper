@@ -5,6 +5,12 @@ import './Minesweeper.css';
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { action, autorun } from 'mobx';
 
+interface IGameStats {
+    wins: number,
+    consecutiveWins: number,
+    previousWinSeed: string,
+}
+
 function SerializeGameState(gamestate: MinesweeperGameState): string {
     return JSON.stringify(gamestate);
 }
@@ -13,11 +19,18 @@ function DeserializeGameState(gamestate: string): MinesweeperGameState {
     return JSON.parse(gamestate);
 }
 
-function getTodaysSeed(): string {
+function generateSeed(year: number, month: number, day: number): string {
     const MAGIC_NUMBER = 329246;
-    const now = new Date();
-    const seed = (now.getUTCDay() * now.getUTCMonth() * now.getUTCFullYear() * MAGIC_NUMBER).toString();
+    const seed = (year * month * day * MAGIC_NUMBER).toString();
     return seed
+}
+
+function generateSeedFromDate(date: Date): string {
+    return generateSeed(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+}
+
+function getTodaysSeed(): string {
+    return generateSeedFromDate(new Date());
 }
 
 function Minesweeper() {
@@ -39,6 +52,18 @@ function Minesweeper() {
         }
 
         return new MinesweeperGame(width, height, bombs, todaySeed);
+    });
+    const [stats, _] = useState(() => {
+        let stats: IGameStats = {
+            wins: 0,
+            consecutiveWins: 0,
+            previousWinSeed: getTodaysSeed(),
+        };
+        let storedStatsString = localStorage.getItem("stats");
+        if (storedStatsString != null) {
+            stats = JSON.parse(storedStatsString);
+        }
+        return stats;
     });
     const rowCount = game.board.length;
     const columnCount = game.board[0].length;
@@ -75,7 +100,32 @@ function Minesweeper() {
             console.log("Saved gamestate");
         });
         return () => disposer();
-    }, [])
+    }, []);
+
+    // Update stats on game win
+    useEffect(() => {
+        const disposer = autorun(() => {
+            if (game.isOver && game.isWin()) {
+                // Don't increment stats multiple times for same day
+                if (stats.wins > 0 && stats.previousWinSeed == game.seed) {
+                    return;
+                }
+
+                const now = new Date();
+                const millisecondsInADay = 1000 * 60 * 60 * 24;
+                if (stats.previousWinSeed == generateSeedFromDate(new Date(now.getTime() - millisecondsInADay))) {
+                    stats.consecutiveWins++;
+                } else {
+                    stats.consecutiveWins = 1;
+                }
+                stats.previousWinSeed = game.seed;
+                stats.wins++;
+                localStorage.setItem("stats", JSON.stringify(stats));
+                console.log("Saved stats");
+            }
+        });
+        return () => disposer();
+    }, []);
 
     const boardTileStyle = {
         cursor: 'pointer',
@@ -139,9 +189,21 @@ function Minesweeper() {
         padding: '2px',
     }
 
+    const GameStats = observer((observable: { stats: IGameStats }) => {
+        const { wins, consecutiveWins, previousWinSeed } = observable.stats;
+        return (
+            <div className="game-stats">
+                <div><strong>You Win!</strong></div>
+                <div>Wins: {wins}</div>
+                <div>Streak: {consecutiveWins}</div>
+            </div>
+        );
+    });
+
     return (
         <div className="minesweeper">
             <ResetClock />
+            {game.isOver && <GameStats stats={stats} />}
             <div className='game-board' style={gameBoardStyle} onContextMenu={disableContextMenu}>
                 <GameBoardComponent game={game} />
             </div>

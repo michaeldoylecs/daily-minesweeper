@@ -49,3 +49,15 @@
 .clock-numbers {
     font-family: monospace;
 }
+
+.game-stats {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: center;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 0 0 10px 0;
+}

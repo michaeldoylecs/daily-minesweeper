@@ -42,9 +42,9 @@ export class MinesweeperGame {
     readonly mineCount: number;
     readonly boardRows: number;
     readonly boardColumns: number;
-    readonly _seed: string = 'TESTSEED';
+    readonly seed: string = 'TESTSEED';
     private _board: BoardTile[][];
-    private isOver: boolean;
+    private _isOver: boolean;
 
     constructor(
         boardWidth: number = 9,
@@ -57,9 +57,9 @@ export class MinesweeperGame {
         this.boardRows = this._board.length;
         this.boardColumns = this._board[0].length; // Assumes board > 0 rows
         this.mineCount = mineCount;
-        this._seed = seed;
+        this.seed = seed;
         this._board = this.generateGameBoard();
-        this.isOver = isOver;
+        this._isOver = isOver;
         makeAutoObservable(this);
     }
 
@@ -85,19 +85,19 @@ export class MinesweeperGame {
             BoardColumns: this.boardColumns,
             BoardData: this._board.slice(),
             MineCount: this.mineCount,
-            Seed: this._seed,
-            isOver: this.isOver,
+            Seed: this.seed,
+            isOver: this._isOver,
         };
     }
 
     public reset() {
         this._board = this.generateGameBoard();
-        this.isOver = false;
+        this._isOver = false;
     }
 
     public click(x: number, y: number) {
         // Prevent click if game is already over
-        if (this.isOver) return;
+        if (this._isOver) return;
 
         // Prevent click outside of game bounds
         if (x < 0 || x >= this.boardColumns || y < 0 || y > this.boardRows) return;
@@ -119,7 +119,7 @@ export class MinesweeperGame {
 
         // If a bomb was clicked, end the game
         if (tile.isBomb) {
-            this.isOver = true;
+            this._isOver = true;
             return;
         }
 
@@ -127,14 +127,28 @@ export class MinesweeperGame {
         if (tile.adjacentBombCount === 0) {
             this._board = this.propagateEmptyTiles(this._board, x, y);
         }
+
+        console.log("Checking win...");
+        if (this.isWin()) {
+            console.log("...game is won!");
+            this._isOver = true;
+        }
     }
 
     public flag(x: number, y: number) {
-        if (this.isOver) return;
+        if (this._isOver) return;
         if (x < 0 || x >= this.boardColumns || y < 0 || y > this.boardRows) return;
         const tile = this._board[x][y];
         if (tile.isVisible) return;
         this._board[x][y].isFlagged = !this._board[x][y].isFlagged;
+
+        if (this._board[x][y].isFlagged) {
+            console.log("Checking win...");
+            if (this.isWin()) {
+                console.log("...game is won!");
+                this._isOver = true;
+            }
+        }
     }
 
     public get board(): BoardTile[][] { 
@@ -146,9 +160,28 @@ export class MinesweeperGame {
         return;
     }
 
+    public get isOver(): boolean {
+        return this._isOver;
+    }
+
+    public isWin(): boolean {
+        for (let j = 0; j < this.boardRows; ++j) {
+            for (let k = 0; k < this.boardColumns; ++k) {
+                const tile = this._board[j][k];
+                if (!tile.isBomb && !tile.isVisible) {
+                    return false;
+                }
+                if (tile.isBomb && !tile.isFlagged) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private clickWithoutEnding(board: BoardTile[][],x: number, y: number): number {
         // Prevent click if game is already over
-        if (this.isOver) return 0;
+        if (this._isOver) return 0;
 
         // Prevent click outside of game bounds
         if (x < 0 || x >= this.boardColumns || y < 0 || y > this.boardRows) return 0;
@@ -165,7 +198,7 @@ export class MinesweeperGame {
 
         // If a bomb was clicked, end the game
         if (tile.isBomb) {
-            this.isOver = true;
+            this._isOver = true;
             return 1;
         }
 
@@ -189,7 +222,7 @@ export class MinesweeperGame {
     }
     
     private generateGameBoard(): BoardTile[][] {
-        let rng = new Rand(this._seed);
+        let rng = new Rand(this.seed);
         const minePositions = this.chooseSeededMinePositions(rng);
         let board = this.createEmptyBoard(this.boardColumns, this.boardRows);
         for (const bomb of minePositions) {
@@ -314,7 +347,7 @@ export class MinesweeperGame {
             bombCount += this.clickWithoutEnding(board, x1, y1);
         }
         if (bombCount > 0) {
-            this.isOver = true;
+            this._isOver = true;
         }
     }
 }
