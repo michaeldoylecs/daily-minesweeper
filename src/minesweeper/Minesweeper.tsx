@@ -92,6 +92,12 @@ function Minesweeper() {
         }
     }
 
+    const handleReset = (event: SyntheticEvent) => {
+        event.preventDefault();
+        game.reset();
+        console.log("RESET");
+    }
+
     // Save game state on change
     useEffect(() => {
         const disposer = autorun(() => {
@@ -189,21 +195,48 @@ function Minesweeper() {
         padding: '2px',
     }
 
-    const GameStats = observer((observable: { stats: IGameStats }) => {
-        const { wins, consecutiveWins, previousWinSeed } = observable.stats;
-        return (
-            <div className="game-stats">
-                <div><strong>You Win!</strong></div>
-                <div>Wins: {wins}</div>
-                <div>Streak: {consecutiveWins}</div>
-            </div>
-        );
+    const GameOver = observer((observable: { stats: IGameStats, game: MinesweeperGame }) => {
+        const { wins, consecutiveWins } = observable.stats;
+        const game = observable.game;
+
+        if (!game.isOver) {
+            return <></>;
+        }
+
+        if (game.isWin()) {
+            return (
+                <div className="game-stats win">
+                    <div><strong>You win!</strong></div>
+                    <div>Wins: {wins}</div>
+                    <div>Streak: {consecutiveWins}</div>
+                </div>
+            );
+        } else {
+            return (
+                <div className="game-stats lose">
+                    <div><strong>You lose, try again?</strong></div>
+                    <ResetButton game={game}/>
+                </div>
+            );
+        }
+    });
+
+    const ResetButton = observer((observable: { game: MinesweeperGame }) => {
+        if (observable.game.isOver && !observable.game.isWin()) {
+            return (
+                <button className="reset-button" onClick={handleReset}>
+                    Reset
+                </button>
+            );
+        } else {
+            return <></>;
+        }
     });
 
     return (
         <div className="minesweeper">
             <ResetClock />
-            {game.isOver && <GameStats stats={stats} />}
+            <GameOver stats={stats} game={game} />
             <div className='game-board' style={gameBoardStyle} onContextMenu={disableContextMenu}>
                 <GameBoardComponent game={game} />
             </div>
