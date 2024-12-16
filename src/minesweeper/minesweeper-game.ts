@@ -105,13 +105,12 @@ export class MinesweeperGame {
         const tile = this._board[x][y];
         
         if (tile.isVisible) {
-            // If a revealed, number tile was clicked...
+            // If a revealed, non-flagged, number number tile was clicked...
             if (!tile.isBomb && !tile.isFlagged && tile.adjacentBombCount > 0 && this.getAdjacentFlagCount(this._board, x, y) == tile.adjacentBombCount) {
                 this.revealHiddenNonflaggedNeighbors(this._board, x, y);
+            } else {
+                return;
             }
-
-            // Ignore revealed tiles
-            return;
         } else {
             // Reveal the tile if not revealed yet
             this._board[x][y].isVisible = true;
