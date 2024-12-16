@@ -239,12 +239,18 @@ export class MinesweeperGame {
 
         while (toVisit.length > 0) {
             const [currX, currY] = toVisit.pop()!;
+
+            // Check if already visited
             const stringifiedCoords = JSON.stringify([currX, currY]);
             if (visitedCoords.has(stringifiedCoords)) {
                 continue;
             }
             visitedCoords.add(stringifiedCoords);
+            
+            // Reveal tile
             board[currX][currY].isVisible = true;
+            
+            // If the tile has no adjacent bomb, add neighbor tiles to toVisit list
             if (board[currX][currY].adjacentBombCount === 0) {
                 const adjacentTiles = this.getAdjacentTiles(board, currX, currY);
                 toVisit = toVisit.concat(adjacentTiles);
